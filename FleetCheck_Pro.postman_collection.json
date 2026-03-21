@@ -1,0 +1,109 @@
+{
+	"info": {
+		"_postman_id": "f1eet-check-pro-full-crud-0127",
+		"name": "FleetCheck Pro - Complete API (Secured)",
+		"description": "Full secured API collection for FleetCheck Pro: CRUD, lookups, and the 4-zone inspection checklist with JWT Auth.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8080", "type": "string" },
+		{ "key": "inspection_id", "value": "", "type": "string" },
+		{ "key": "jwt_token", "value": "", "type": "string" }
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+	},
+	"item": [
+		{
+			"name": "0. Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"auth": { "type": "noauth" },
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"userId\": \"admin\",\n  \"pin\": \"1234\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": "{{base_url}}/api/auth/login",
+						"description": "Returns a JWT. Copy it to the {{jwt_token}} collection variable."
+					}
+				},
+				{
+					"name": "Change PIN (Authenticated)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"userId\": \"admin\",\n  \"pin\": \"1234\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": "{{base_url}}/api/auth/set-pin",
+						"description": "Used to change the PIN for an existing user."
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/users" } },
+				{ "name": "Create User (with PIN)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": \"0000827008\",\n  \"username\": \"alfredo\",\n  \"fullName\": \"Alfredo Reid\",\n  \"fleetGroup\": \"PH4\",\n  \"role\": { \"id\": 2 },\n  \"pin\": \"1234\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/users", "description": "You can now include the 'pin' directly during creation." } }
+			]
+		},
+		{
+			"name": "Lookups",
+			"item": [
+				{ "name": "Roles", "request": { "method": "GET", "url": "{{base_url}}/api/roles" } },
+				{ "name": "Checklist Templates", "request": { "method": "GET", "url": "{{base_url}}/api/inspections/checklist/templates" } }
+			]
+		},
+		{
+			"name": "Vehicles",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/vehicles" } }
+			]
+		},
+		{
+			"name": "Shipments",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/shipments" } },
+				{ "name": "Create Shipment", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"shipmentId\": \"159494\",\n  \"dispatchDate\": \"2026-03-21\",\n  \"driver\": { \"userId\": \"0000827008\" },\n  \"status\": { \"id\": 1 },\n  \"vehicle\": { \"vehicleId\": \"TT3626\" }\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/shipments" } }
+			]
+		},
+		{
+			"name": "Inspections",
+			"item": [
+				{
+					"name": "1. Start Inspection",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"shipment\": { \"shipmentId\": \"159494\" },\n  \"gpsLocation\": \"-26.123, 28.456\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": "{{base_url}}/api/inspections/start"
+					}
+				},
+				{
+					"name": "2. Submit Checklist (One Shot)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "[\n  { \"itemCode\": \"GAUGES\",            \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"HOOTER\",            \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"REVERSE_BUZZER\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"SEAT_BELTS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"IN_CAB_5S\",         \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLUIDS_FUEL\",       \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLUIDS_LEAKS\",      \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"LIGHTS_LENSES\",     \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"WINDSCREEN_WIPERS\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"MIRRORS\",           \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TYRES_RIMS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TREAD_DEPTH\",       \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"SAFETY_EQUIPMENT\",  \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"OPERATIONAL_TOOLS\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"LEGAL_COMPLIANCE\",  \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"IDENTIFICATION\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"CHEVRON_BUMPER\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"ROOF_TARPS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TARP_HARDWARE\",     \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FIVE_S_COMPLIANCE\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLT_HITCHING\",      \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_FLUIDS\",        \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_LEGAL\",         \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_MECHANICAL\",    \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" }\n]", "options": { "raw": { "language": "json" } } },
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
+					}
+				},
+				{
+					"name": "3. End Inspection (PASS)",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/end?driverSig=Mr Maahlo&supervisorSig=Mr Morele&securitySig=Mr Skhosana",
+							"query": [
+								{ "key": "driverSig", "value": "Mr Maahlo" },
+								{ "key": "supervisorSig", "value": "Mr Morele" },
+								{ "key": "securitySig", "value": "Mr Skhosana" }
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

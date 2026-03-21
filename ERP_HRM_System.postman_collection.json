@@ -1,0 +1,152 @@
+{
+	"info": {
+		"_postman_id": "8b234567-89ab-4cde-0123-456789abcdef",
+		"name": "ERP HRM System - Full CRUD",
+		"description": "Comprehensive API Collection for the ERP/HRM System including all CRUD operations and lookups.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Lookups",
+			"item": [
+				{
+					"name": "Status Types",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/api/lookups/status-types"
+					}
+				},
+				{
+					"name": "Create Status Type",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"PENDING\",\"description\":\"Pending approval\"}" },
+						"url": "{{base_url}}/api/lookups/status-types"
+					}
+				},
+				{
+					"name": "Role Types",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/api/lookups/role-types"
+					}
+				},
+				{
+					"name": "Create Role Type",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"USER\",\"description\":\"Standard user\"}" },
+						"url": "{{base_url}}/api/lookups/role-types"
+					}
+				},
+				{
+					"name": "KPI Units",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/api/lookups/kpi-units"
+					}
+				},
+				{
+					"name": "Create KPI Unit",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": { "mode": "raw", "raw": "{\"name\":\"HOURS\",\"description\":\"Time in hours\"}" },
+						"url": "{{base_url}}/api/lookups/kpi-units"
+					}
+				}
+			]
+		},
+		{
+			"name": "IAM - Profiles & Auth",
+			"item": [
+				{
+					"name": "Profiles",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/profiles" } },
+						{ "name": "Get By ID", "request": { "method": "GET", "url": "{{base_url}}/api/profiles/:id" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john.doe@example.com\",\"role\":\"ADMIN\"}" }, "url": "{{base_url}}/api/profiles" } },
+						{ "name": "Update", "request": { "method": "PUT", "body": { "mode": "raw", "raw": "{\"firstName\":\"John\",\"lastName\":\"Updated\",\"email\":\"john.doe@example.com\",\"role\":\"ADMIN\"}" }, "url": "{{base_url}}/api/profiles/:id" } },
+						{ "name": "Delete", "request": { "method": "DELETE", "url": "{{base_url}}/api/profiles/:id" } }
+					]
+				},
+				{
+					"name": "Identifications",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/identifications" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"personProfile\":{\"id\":1},\"identificationType\":\"PASSPORT\",\"identificationNumber\":\"A1234567\"}" }, "url": "{{base_url}}/api/identifications" } }
+					]
+				},
+				{
+					"name": "Audit Logs",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/audit-logs" } }
+					]
+				}
+			]
+		},
+		{
+			"name": "Organizational Hierarchy",
+			"item": [
+				{
+					"name": "Organizations",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/organizations" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"name\":\"Global Tech\",\"status\":\"ACTIVE\"}" }, "url": "{{base_url}}/api/organizations" } }
+					]
+				},
+				{
+					"name": "Workspaces",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/workspaces" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"name\":\"Headquarters\",\"organization\":{\"id\":1},\"status\":\"ACTIVE\"}" }, "url": "{{base_url}}/api/workspaces" } }
+					]
+				},
+				{
+					"name": "Business Units",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/business-units" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"name\":\"Engineering\",\"workspace\":{\"id\":1},\"status\":\"ACTIVE\"}" }, "url": "{{base_url}}/api/business-units" } }
+					]
+				}
+			]
+		},
+		{
+			"name": "HRM - Employees & Leave",
+			"item": [
+				{
+					"name": "Employees",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/employees" } },
+						{ "name": "Create", "request": { "method": "POST", "body": { "mode": "raw", "raw": "{\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"email\":\"jane@example.com\",\"employeeId\":\"EMP001\",\"jobTitle\":\"Dev\"}" }, "url": "{{base_url}}/api/employees" } }
+					]
+				},
+				{
+					"name": "Leave Requests",
+					"item": [
+						{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/leave-requests" } },
+						{ "name": "Update Status", "request": { "method": "PATCH", "url": { "raw": "{{base_url}}/api/leave-requests/:id/status?status=APPROVED", "query": [{"key":"status","value":"APPROVED"}] } } }
+					]
+				}
+			]
+		},
+		{
+			"name": "Performance & KPI",
+			"item": [
+				{ "name": "KPI Definitions", "item": [ { "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/kpi-definitions" } } ] },
+				{ "name": "Evaluations", "item": [ { "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/evaluations" } } ] }
+			]
+		},
+		{
+			"name": "Projects & Time",
+			"item": [
+				{ "name": "Projects", "item": [ { "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/projects" } } ] },
+				{ "name": "Tasks", "item": [ { "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/project-tasks" } } ] },
+				{ "name": "Time Entries", "item": [ { "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/time-entries" } } ] }
+			]
+		}
+	],
+	"variable": [ { "key": "base_url", "value": "http://localhost:8080", "type": "string" } ]
+}
