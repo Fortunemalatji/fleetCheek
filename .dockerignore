@@ -1,0 +1,14 @@
+target/
+!.jar
+.mvn/
+mvnw*
+.git/
+.env
+.gitignore
+Dockerfile
+README.md
+*.log
+.settings/
+.classpath/
+.project/
+.DS_Store
