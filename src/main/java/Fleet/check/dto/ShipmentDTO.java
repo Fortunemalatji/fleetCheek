@@ -11,6 +11,8 @@ public class ShipmentDTO {
     private String driverId;
     private String driverName;
     private String vehicleId;
+    private String trailerId;
+    private String trailerName;
     private Integer statusId;
     private String statusName;
     private LocalDateTime createdAt;

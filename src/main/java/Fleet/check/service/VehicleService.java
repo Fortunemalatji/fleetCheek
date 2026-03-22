@@ -37,6 +37,11 @@ public class VehicleService {
         if (dto.getCategoryId() != null) {
             vehicle.setCategory(categoryRepository.findById(dto.getCategoryId()).orElse(null));
         }
+
+        vehicle.setFrontPhotoUrl(dto.getFrontPhotoUrl());
+        vehicle.setBackPhotoUrl(dto.getBackPhotoUrl());
+        vehicle.setLeftPhotoUrl(dto.getLeftPhotoUrl());
+        vehicle.setRightPhotoUrl(dto.getRightPhotoUrl());
         
         return toDTO(vehicleRepository.save(vehicle));
     }
@@ -51,6 +56,11 @@ public class VehicleService {
         if (dto.getCategoryId() != null) {
             vehicle.setCategory(categoryRepository.findById(dto.getCategoryId()).orElse(null));
         }
+
+        if (dto.getFrontPhotoUrl() != null) vehicle.setFrontPhotoUrl(dto.getFrontPhotoUrl());
+        if (dto.getBackPhotoUrl() != null) vehicle.setBackPhotoUrl(dto.getBackPhotoUrl());
+        if (dto.getLeftPhotoUrl() != null) vehicle.setLeftPhotoUrl(dto.getLeftPhotoUrl());
+        if (dto.getRightPhotoUrl() != null) vehicle.setRightPhotoUrl(dto.getRightPhotoUrl());
         
         return toDTO(vehicleRepository.save(vehicle));
     }
@@ -70,6 +80,10 @@ public class VehicleService {
             dto.setCategoryId(vehicle.getCategory().getId());
             dto.setCategoryName(vehicle.getCategory().getName());
         }
+        dto.setFrontPhotoUrl(vehicle.getFrontPhotoUrl());
+        dto.setBackPhotoUrl(vehicle.getBackPhotoUrl());
+        dto.setLeftPhotoUrl(vehicle.getLeftPhotoUrl());
+        dto.setRightPhotoUrl(vehicle.getRightPhotoUrl());
         return dto;
     }
 }

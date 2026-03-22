@@ -79,6 +79,13 @@ public class InspectionController {
         return inspectionService.endInspection(id, supervisorOverride, driverSig, supervisorSig, securitySig);
     }
 
+    @GetMapping("/{id}/verify")
+    public InspectionDTO verify(@PathVariable UUID id) {
+        return inspectionRepository.findById(id)
+                .map(inspectionService::toInspectionDTO)
+                .orElseThrow(() -> new RuntimeException("Inspection not found: " + id));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         inspectionRepository.deleteById(id);

@@ -10,6 +10,8 @@ public class InspectionDTO {
     private UUID id;
     private String shipmentId;
     private String vehicleId;
+    private String trailerId;
+    private String trailerName;
     private String driverId;
     private String gpsLocation;
     private String overallStatus;

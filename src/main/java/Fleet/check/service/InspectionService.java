@@ -34,9 +34,12 @@ public class InspectionService {
         inspection.setShipment(shipment);
         inspection.setGpsLocation(dto.getGpsLocation());
         
-        // Automatically link the vehicle from the shipment
+        // Automatically link the vehicle and trailer from the shipment
         if (shipment.getVehicle() != null) {
             inspection.setVehicle(shipment.getVehicle());
+        }
+        if (shipment.getTrailer() != null) {
+            inspection.setTrailer(shipment.getTrailer());
         }
 
         inspection.setStartTime(LocalDateTime.now());
@@ -61,6 +64,7 @@ public class InspectionService {
             item.setTemplate(template);
             item.setResponse(req.getResponse());
             item.setRemarks(req.getRemarks());
+            item.setPhotoUrl(req.getPhotoUrl());
             return item;
         }).collect(Collectors.toList());
 
@@ -129,6 +133,11 @@ public class InspectionService {
         if (inspection.getVehicle() != null) {
             dto.setVehicleId(inspection.getVehicle().getVehicleId());
         }
+        
+        if (inspection.getTrailer() != null) {
+            dto.setTrailerId(inspection.getTrailer().getVehicleId());
+            dto.setTrailerName(inspection.getTrailer().getVehicleId());
+        }
 
         if (inspection.getChecklistItems() != null) {
             dto.setChecklistItems(inspection.getChecklistItems().stream()
@@ -148,6 +157,7 @@ public class InspectionService {
         dto.setZoneName(item.getTemplate().getZoneName());
         dto.setResponse(item.getResponse());
         dto.setRemarks(item.getRemarks());
+        dto.setPhotoUrl(item.getPhotoUrl());
         return dto;
     }
 }

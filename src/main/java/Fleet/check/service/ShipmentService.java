@@ -42,6 +42,11 @@ public class ShipmentService {
             shipment.setVehicle(vehicleRepository.findById(dto.getVehicleId())
                     .orElseThrow(() -> new ResourceNotFoundException("Vehicle not found")));
         }
+
+        if (dto.getTrailerId() != null) {
+            shipment.setTrailer(vehicleRepository.findById(dto.getTrailerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Trailer not found")));
+        }
         
         if (dto.getStatusId() != null) {
             shipment.setStatus(statusRepository.findById(dto.getStatusId()).orElse(null));
@@ -65,6 +70,10 @@ public class ShipmentService {
         
         if (dto.getVehicleId() != null) {
             shipment.setVehicle(vehicleRepository.findById(dto.getVehicleId()).orElse(null));
+        }
+
+        if (dto.getTrailerId() != null) {
+            shipment.setTrailer(vehicleRepository.findById(dto.getTrailerId()).orElse(null));
         }
         
         if (dto.getStatusId() != null) {
@@ -92,6 +101,11 @@ public class ShipmentService {
         
         if (shipment.getVehicle() != null) {
             dto.setVehicleId(shipment.getVehicle().getVehicleId());
+        }
+
+        if (shipment.getTrailer() != null) {
+            dto.setTrailerId(shipment.getTrailer().getVehicleId());
+            dto.setTrailerName(shipment.getTrailer().getVehicleId()); // Or some other name if available
         }
         
         if (shipment.getStatus() != null) {

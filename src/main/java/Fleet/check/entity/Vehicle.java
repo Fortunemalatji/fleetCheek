@@ -26,4 +26,15 @@ public class Vehicle extends BaseEntity {
 
     private Integer lastOdometer;
 
+    @Column(length = 1000)
+    private String frontPhotoUrl;
+
+    @Column(length = 1000)
+    private String backPhotoUrl;
+
+    @Column(length = 1000)
+    private String leftPhotoUrl;
+
+    @Column(length = 1000)
+    private String rightPhotoUrl;
 }

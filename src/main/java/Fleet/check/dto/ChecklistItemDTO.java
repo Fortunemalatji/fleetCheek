@@ -13,4 +13,5 @@ public class ChecklistItemDTO {
     private String zoneName;
     private String response;
     private String remarks;
+    private String photoUrl;
 }

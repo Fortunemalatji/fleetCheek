@@ -58,14 +58,15 @@
 		{
 			"name": "Vehicles",
 			"item": [
-				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/vehicles" } }
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/vehicles" } },
+				{ "name": "Create Vehicle (with Photos)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"vehicleId\": \"ST2832\",\n  \"categoryId\": 2,\n  \"isActive\": true,\n  \"frontPhotoUrl\": \"https://example.com/front.jpg\",\n  \"backPhotoUrl\": \"https://example.com/back.jpg\",\n  \"leftPhotoUrl\": \"https://example.com/left.jpg\",\n  \"rightPhotoUrl\": \"https://example.com/right.jpg\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/vehicles" } }
 			]
 		},
 		{
 			"name": "Shipments",
 			"item": [
 				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/shipments" } },
-				{ "name": "Create Shipment", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"shipmentId\": \"159494\",\n  \"dispatchDate\": \"2026-03-21\",\n  \"driver\": { \"userId\": \"0000827008\" },\n  \"status\": { \"id\": 1 },\n  \"vehicle\": { \"vehicleId\": \"TT3626\" }\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/shipments" } }
+				{ "name": "Create Shipment (with Trailer)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"shipmentId\": \"159494\",\n  \"dispatchDate\": \"2026-03-21\",\n  \"driver\": { \"userId\": \"0000827008\" },\n  \"status\": { \"id\": 1 },\n  \"vehicle\": { \"vehicleId\": \"TT3626\" },\n  \"trailerId\": \"ST2832\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/shipments" } }
 			]
 		},
 		{
@@ -81,16 +82,16 @@
 					}
 				},
 				{
-					"name": "2. Submit Checklist (One Shot)",
+					"name": "2. Submit Checklist (with Photos)",
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "[\n  { \"itemCode\": \"GAUGES\",            \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"HOOTER\",            \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"REVERSE_BUZZER\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"SEAT_BELTS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"IN_CAB_5S\",         \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLUIDS_FUEL\",       \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLUIDS_LEAKS\",      \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"LIGHTS_LENSES\",     \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"WINDSCREEN_WIPERS\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"MIRRORS\",           \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TYRES_RIMS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TREAD_DEPTH\",       \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"SAFETY_EQUIPMENT\",  \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"OPERATIONAL_TOOLS\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"LEGAL_COMPLIANCE\",  \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"IDENTIFICATION\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"CHEVRON_BUMPER\",    \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"ROOF_TARPS\",        \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"TARP_HARDWARE\",     \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FIVE_S_COMPLIANCE\", \"response\": \"YES\", \"remarks\": \"\" },\n  { \"itemCode\": \"FLT_HITCHING\",      \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_FLUIDS\",        \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_LEGAL\",         \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" },\n  { \"itemCode\": \"FLT_MECHANICAL\",    \"response\": \"NA\",  \"remarks\": \"No forklift fitted\" }\n]", "options": { "raw": { "language": "json" } } },
+						"body": { "mode": "raw", "raw": "[\n  { \"itemCode\": \"GAUGES\",            \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" },\n  { \"itemCode\": \"HOOTER\",            \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" },\n  { \"itemCode\": \"TYRES_RIMS\",        \"response\": \"NO\",  \"remarks\": \"Left front worn\", \"photoUrl\": \"https://example.com/worn_tyre.jpg\" },\n  { \"itemCode\": \"LIGHTS_LENSES\",     \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" }\n]", "options": { "raw": { "language": "json" } } },
 						"url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
 					}
 				},
 				{
-					"name": "3. End Inspection (PASS)",
+					"name": "3. End Inspection",
 					"request": {
 						"method": "POST",
 						"url": {
@@ -101,6 +102,14 @@
 								{ "key": "securitySig", "value": "Mr Skhosana" }
 							]
 						}
+					}
+				},
+				{
+					"name": "4. Verify Gate Pass",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/verify",
+						"description": "Used by Security to verify the inspection status via QR code scan."
 					}
 				}
 			]

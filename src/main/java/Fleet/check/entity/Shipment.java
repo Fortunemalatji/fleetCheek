@@ -29,6 +29,10 @@ public class Shipment extends BaseEntity {
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "trailer_id")
+    private Vehicle trailer;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "status_id")
     private ShipmentStatus status;
 }

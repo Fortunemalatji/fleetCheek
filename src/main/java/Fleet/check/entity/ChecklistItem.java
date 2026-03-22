@@ -36,4 +36,7 @@ public class ChecklistItem extends BaseEntity {
 
     @Column(length = 500)
     private String remarks;
+
+    @Column(length = 1000)
+    private String photoUrl;
 }

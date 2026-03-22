@@ -10,6 +10,10 @@ public class VehicleDTO {
     private String categoryName;
     private Double lastOdometer;
     private Boolean isActive;
+    private String frontPhotoUrl;
+    private String backPhotoUrl;
+    private String leftPhotoUrl;
+    private String rightPhotoUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

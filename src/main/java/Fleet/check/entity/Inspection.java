@@ -28,6 +28,10 @@ public class Inspection extends BaseEntity {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "trailer_id")
+    private Vehicle trailer;
+
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
