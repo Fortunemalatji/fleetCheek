@@ -5,6 +5,7 @@ import Fleet.check.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,13 +17,38 @@ public class ChecklistDataSeeder implements CommandLineRunner {
     private final ChecklistTemplateRepository templateRepo;
     private final RoleRepository roleRepo;
     private final UserRepository userRepo;
+    private final FleetGroupRepository fleetGroupRepo;
+    private final ShipmentStatusRepository statusRepo;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) {
+        fixDatabaseSchema();
+        seedFleetGroups();
+        seedShipmentStatuses();
         seedRoles();
         seedAdminUser();
         seedTemplates();
+    }
+
+    private void fixDatabaseSchema() {
+        log.info("Checking for legacy schema issues...");
+        try {
+            jdbcTemplate.execute("ALTER TABLE vehicles DROP COLUMN IF EXISTS fleet_group");
+            log.info("Database schema check complete.");
+        } catch (Exception e) {
+            log.warn("Could not drop legacy column 'fleet_group': {}", e.getMessage());
+        }
+    }
+
+    private void seedFleetGroups() {
+        if (fleetGroupRepo.count() > 0) return;
+        fleetGroupRepo.save(new FleetGroup(null, "Northern Cape"));
+        fleetGroupRepo.save(new FleetGroup(null, "Gauteng"));
+        fleetGroupRepo.save(new FleetGroup(null, "Nelspru"));
+        fleetGroupRepo.save(new FleetGroup(null, "SYSTEM"));
+        log.info("Seeded initial Fleet Groups.");
     }
 
     private void seedRoles() {
@@ -33,16 +59,29 @@ public class ChecklistDataSeeder implements CommandLineRunner {
         roleRepo.save(new Role(null, "SECURITY"));
     }
 
+    private void seedShipmentStatuses() {
+        if (statusRepo.count() > 0) return;
+        statusRepo.save(new ShipmentStatus(null, "SCHEDULED"));
+        statusRepo.save(new ShipmentStatus(null, "IN_PROGRESS"));
+        statusRepo.save(new ShipmentStatus(null, "COMPLETED"));
+        statusRepo.save(new ShipmentStatus(null, "REJECTED"));
+        log.info("Seeded initial Shipment Statuses.");
+    }
+
     private void seedAdminUser() {
         if (userRepo.existsById("admin")) return;
         Role adminRole = roleRepo.findAll().stream()
                 .filter(r -> "ADMIN".equals(r.getName()))
                 .findFirst().orElse(null);
         
+        FleetGroup systemGroup = fleetGroupRepo.findByName("SYSTEM")
+                .orElseGet(() -> fleetGroupRepo.save(new FleetGroup(null, "SYSTEM")));
+        
         User admin = new User();
         admin.setUserId("admin");
         admin.setUsername("admin");
         admin.setFullName("System Admin");
+        admin.setFleetGroup(systemGroup); // Set the FleetGroup entity
         admin.setRole(adminRole);
         admin.setPinHash(passwordEncoder.encode("1234")); // Default PIN
         userRepo.save(admin);

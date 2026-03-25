@@ -4,10 +4,9 @@
 FleetCheck Pro is a comprehensive Fleet Management and Inspection System designed to streamline vehicle inspections, shipment tracking, and user management. The system ensures that all vehicles are inspected periodically and that shipments are handled by authorized personnel.
 
 ### Core Features:
-- **User Management**: Unified system for managing drivers, supervisors, and security personnel with Role-Based Access Control (RBAC).
-- **Vehicle Fleet Tracking**: Categorization and detailed tracking of vehicles (Trucks, Vans, etc.).
-- **Shipment Management**: Scheduling and tracking of shipments, including driver assignment and real-time status updates.
-- **Inspection System**: A structured 4-zone inspection checklist (In-Cab, Front, Sides, Rear) with digital signatures for accountability.
+- **Duo Drivers**: Support for "Single" or "Duo" trips, capturing both primary and co-drivers for enhanced safety and compliance.
+- **Defect Tracking**: Granular tracking of "FAIL" responses, including mandatory photos and a "Fixed" status for follow-up verification.
+- **Time Tracking**: Precision timing of each inspection zone and checklist item to ensure thoroughness.
 - **Security**: Secured with JWT (JSON Web Token) authentication and PIN-based login.
 
 ## Tech Stack
@@ -26,11 +25,11 @@ FleetCheck Pro is a comprehensive Fleet Management and Inspection System designe
 | **User** | Represents personnel (ID, Name, Role, PIN hash, Fleet Group). |
 | **Vehicle** | Represents fleet assets (ID, Registration, Category, **4 Photos: Front, Back, Left, Right**). |
 | **VehicleCategory** | Lookups for vehicle types (e.g., TT, RIGID). |
-| **Shipment** | Links a driver, vehicle, and optional **trailer**, and dispatch date. |
+| **Shipment** | Links a driver, optional **co-driver**, vehicle, optional **trailer**, and **tripType** (SINGLE/DUO). |
 | **ShipmentStatus** | Lookups for shipment states (e.g., DISPATCHED, COMPLETED). |
 | **Inspection** | Records an inspection event for a vehicle and **trailer**, including GPS, signatures, and overall status. |
 | **ChecklistTemplate** | Pre-defined inspection items categorized by Zone (e.g., GAUGES, TYRES). |
-| **ChecklistItem** | The actual response (YES/NO/NA) and **photoUrl** for a template item. |
+| **ChecklistItem** | The actual response (YES/NO/NA), **photoUrl**, **isFixed** status, and **Timing** (Start/End). |
 
 ---
 
@@ -57,7 +56,8 @@ FleetCheck Pro is a comprehensive Fleet Management and Inspection System designe
 | `GET` | `/` | Retrieve all inspection records. |
 | `POST` | `/start` | Step 1: Initialize a new inspection for a shipment. |
 | `GET` | `/checklist/templates` | Retrieve the inspection checklist (optional `zone` filter). |
-| `POST` | `/{id}/checklist` | Step 2: Submit all checklist responses for an inspection (incl. `photoUrl`). |
+| `POST` | `/{id}/checklist` | Step 2: Submit all checklist responses for an inspection (incl. `photoUrl`, `startTime`, `endTime`). |
+| `PATCH` | `/{id}/checklist/{itemCode}` | **Follow-up**: Update a specific checklist item (e.g., mark as `isFixed`). |
 | `GET` | `/{id}/checklist` | Retrieve submitted responses for a specific inspection. |
 | `POST` | `/{id}/end` | Step 3: Complete inspection with signatures and final status. |
 | `GET` | `/{id}/verify` | **Gate Pass**: Quick verification for Security to check the inspection status. |

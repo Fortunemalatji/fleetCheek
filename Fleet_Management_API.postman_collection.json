@@ -1,0 +1,190 @@
+{
+	"info": {
+		"_postman_id": "8b234567-89ab-4cde-0123-456789abcdef",
+		"name": "Fleet Management System",
+		"description": "Comprehensive API Collection for the Fleet Management and Checklist System.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set(\"auth_token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"admin\",\n    \"pin\": \"1234\"\n}"
+						},
+						"url": "{{base_url}}/api/auth/login"
+					}
+				},
+				{
+					"name": "Set PIN",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"0000827008\",\n    \"pin\": \"1234\"\n}"
+						},
+						"url": "{{base_url}}/api/auth/set-pin"
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/users" } },
+				{ "name": "Get By ID", "request": { "method": "GET", "url": "{{base_url}}/api/users/admin" } },
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"0000827008\",\n    \"username\": \"alfredo\",\n    \"fullName\": \"Alfredo Reid\",\n    \"fleetGroup\": \"Northern Cape\",\n    \"roleId\": 2,\n    \"pin\": \"1234\"\n}"
+						},
+						"url": "{{base_url}}/api/users"
+					}
+				}
+			]
+		},
+		{
+			"name": "Vehicles",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/vehicles" } },
+				{
+					"name": "Create Vehicle",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vehicleId\": \"V001\",\n    \"registration\": \"ABC 123 GP\",\n    \"name\": \"Silver Streak\",\n    \"make\": \"Mercedes-Benz\",\n    \"model\": \"Actros\",\n    \"year\": 2024,\n    \"lastOdometer\": 15000,\n    \"photoUrl\": \"https://example.com/truck.jpg\",\n    \"categoryId\": 1,\n    \"fleetGroup\": \"Northern Cape\"\n}"
+						},
+						"url": "{{base_url}}/api/vehicles"
+					}
+				}
+			]
+		},
+		{
+			"name": "Shipments",
+			"item": [
+				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/shipments" } },
+				{
+					"name": "Create Single Trip",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shipmentId\": \"S-123\",\n    \"driverId\": \"0000827008\",\n    \"vehicleId\": \"V001\",\n    \"fleetGroup\": \"Northern Cape\",\n    \"tripType\": \"SINGLE\",\n    \"location\": \"Depot A\",\n    \"dispatchDate\": \"2026-03-24\",\n    \"shipmentTime\": \"08:00:00\"\n}"
+						},
+						"url": "{{base_url}}/api/shipments"
+					}
+				},
+				{
+					"name": "Create Duo Trip",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shipmentId\": \"D-456\",\n    \"driverId\": \"0000827008\",\n    \"coDriverId\": \"admin\",\n    \"vehicleId\": \"V001\",\n    \"fleetGroup\": \"Gauteng\",\n    \"tripType\": \"DUO\",\n    \"location\": \"Depot B\",\n    \"dispatchDate\": \"2026-03-24\",\n    \"shipmentTime\": \"10:00:00\"\n}"
+						},
+						"url": "{{base_url}}/api/shipments"
+					}
+				}
+			]
+		},
+		{
+			"name": "Inspections (The Flow)",
+			"item": [
+				{
+					"name": "1. Start Inspection",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shipmentId\": \"S-123\",\n    \"gpsLocation\": \"-26.1, 28.4\",\n    \"startOdometer\": 15000,\n    \"notes\": \"Pre-trip start\"\n}"
+						},
+						"url": "{{base_url}}/api/inspections/start"
+					}
+				},
+				{ "name": "2. Checklist Templates", "request": { "method": "GET", "url": "{{base_url}}/api/inspections/checklist/templates" } },
+				{
+					"name": "3. Submit Checklist",
+					"request": {
+						"method": "POST",
+						"header": [ { "key": "Content-Type", "value": "application/json" } ],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    { \"itemCode\": \"GAUGES\", \"response\": \"YES\", \"remarks\": \"All clear\" },\n    { \"itemCode\": \"HOOTER\", \"response\": \"YES\", \"remarks\": \"Functional\" }\n]"
+						},
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
+					}
+				},
+				{
+					"name": "4. End Inspection",
+					"request": {
+						"method": "POST",
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/end?supervisorOverride=PASS&driverSig=SIG_IMG_DATA&endOdometer=15250&notes=Trip completed successfully",
+							"query": [
+								{ "key": "supervisorOverride", "value": "PASS" },
+								{ "key": "driverSig", "value": "SIG_IMG_DATA" },
+								{ "key": "endOdometer", "value": "15250" },
+								{ "key": "notes", "value": "Trip completed successfully" }
+							]
+						}
+					}
+				},
+				{
+					"name": "5. Verify Status (Analytics)",
+					"request": {
+						"method": "GET",
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/analytics"
+					}
+				}
+			]
+		},
+		{
+			"name": "Lookups",
+			"item": [
+				{ "name": "Roles", "request": { "method": "GET", "url": "{{base_url}}/api/roles" } },
+				{ "name": "Fleet Groups", "request": { "method": "GET", "url": "{{base_url}}/api/lookups/fleet-groups" } },
+				{ "name": "Shipment Statuses", "request": { "method": "GET", "url": "{{base_url}}/api/lookups/shipment-statuses" } },
+				{ "name": "Vehicle Categories", "request": { "method": "GET", "url": "{{base_url}}/api/lookups/vehicle-categories" } }
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [ { "key": "token", "value": "{{auth_token}}", "type": "string" } ]
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:8080", "type": "string" },
+		{ "key": "auth_token", "value": "", "type": "string" },
+		{ "key": "inspection_id", "value": "PASTE_UUID_HERE", "type": "string" }
+	]
+}

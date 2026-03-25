@@ -35,8 +35,29 @@ public class Inspection extends BaseEntity {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
+    private Integer startOdometer;
+    private Integer endOdometer;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "driver_id")
+    private User driver;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "co_driver_id")
+    private User coDriver;
+
+    @Column(length = 10)
+    private String tripType;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
     @Column(length = 20)
     private String overallStatus; // PASS, FAIL, CONDITIONAL
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "fleet_group_id")
+    private FleetGroup fleetGroup;
 
     @Column(length = 100)
     private String gpsLocation;
@@ -49,6 +70,9 @@ public class Inspection extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String securitySig;
+
+    @Column(length = 20)
+    private String startedByUserId;
 
     @Column(length = 20)
     private String signedByUserId;

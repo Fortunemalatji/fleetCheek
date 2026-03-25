@@ -29,8 +29,9 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String fullName;
 
-    @Column(length = 50)
-    private String fleetGroup; // e.g., PH4 Truck 1
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "fleet_group_id")
+    private FleetGroup fleetGroup;
 
     @Column(length = 255)
     private String pinHash;

@@ -2,7 +2,9 @@ package Fleet.check.service;
 
 import Fleet.check.dto.UserDTO;
 import Fleet.check.entity.User;
+import Fleet.check.entity.FleetGroup;
 import Fleet.check.exception.ResourceNotFoundException;
+import Fleet.check.repository.FleetGroupRepository;
 import Fleet.check.repository.RoleRepository;
 import Fleet.check.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final FleetGroupRepository fleetGroupRepository;
     private final PasswordEncoder passwordEncoder;
 
     public List<UserDTO> getAll() {
@@ -36,8 +39,14 @@ public class UserService {
         user.setUserId(dto.getUserId());
         user.setUsername(dto.getUsername());
         user.setFullName(dto.getFullName());
-        user.setFleetGroup(dto.getFleetGroup());
-        
+
+        if (dto.getFleetGroupId() != null) {
+            user.setFleetGroup(fleetGroupRepository.findById(dto.getFleetGroupId()).orElse(null));
+        } else if (dto.getFleetGroupName() != null) {
+            user.setFleetGroup(fleetGroupRepository.findByName(dto.getFleetGroupName())
+                .orElseGet(() -> fleetGroupRepository.save(new FleetGroup(null, dto.getFleetGroupName()))));
+        }
+
         if (dto.getRoleId() != null) {
             user.setRole(roleRepository.findById(dto.getRoleId()).orElse(null));
         }
@@ -55,8 +64,13 @@ public class UserService {
         
         user.setFullName(dto.getFullName());
         user.setUsername(dto.getUsername());
-        user.setFleetGroup(dto.getFleetGroup());
-        
+        if (dto.getFleetGroupId() != null) {
+            user.setFleetGroup(fleetGroupRepository.findById(dto.getFleetGroupId()).orElse(null));
+        } else if (dto.getFleetGroupName() != null) {
+            user.setFleetGroup(fleetGroupRepository.findByName(dto.getFleetGroupName())
+                .orElseGet(() -> fleetGroupRepository.save(new FleetGroup(null, dto.getFleetGroupName()))));
+        }
+
         if (dto.getRoleId() != null) {
             user.setRole(roleRepository.findById(dto.getRoleId()).orElse(null));
         }
@@ -77,9 +91,12 @@ public class UserService {
         dto.setUserId(user.getUserId());
         dto.setUsername(user.getUsername());
         dto.setFullName(user.getFullName());
-        dto.setFleetGroup(user.getFleetGroup());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
+        if (user.getFleetGroup() != null) {
+            dto.setFleetGroupId(user.getFleetGroup().getId());
+            dto.setFleetGroupName(user.getFleetGroup().getName());
+        }
         if (user.getRole() != null) {
             dto.setRoleId(user.getRole().getId());
             dto.setRoleName(user.getRole().getName());

@@ -2,6 +2,7 @@ package Fleet.check.service;
 
 import Fleet.check.dto.ShipmentDTO;
 import Fleet.check.entity.Shipment;
+import Fleet.check.entity.FleetGroup;
 import Fleet.check.exception.ResourceNotFoundException;
 import Fleet.check.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class ShipmentService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
     private final ShipmentStatusRepository statusRepository;
+    private final FleetGroupRepository fleetGroupRepository;
 
     public List<ShipmentDTO> getAll() {
         return shipmentRepository.findAll().stream()
@@ -28,14 +30,35 @@ public class ShipmentService {
         return shipmentRepository.findById(id).map(this::toDTO);
     }
 
+    public List<ShipmentDTO> getByUserId(String userId) {
+        return shipmentRepository.findByDriver_UserIdOrCoDriver_UserId(userId, userId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public ShipmentDTO create(ShipmentDTO dto) {
         Shipment shipment = new Shipment();
         shipment.setShipmentId(dto.getShipmentId());
         shipment.setDispatchDate(dto.getDispatchDate());
+        shipment.setLocation(dto.getLocation());
+        shipment.setShipmentTime(dto.getShipmentTime());
         
         if (dto.getDriverId() != null) {
             shipment.setDriver(userRepository.findById(dto.getDriverId())
                     .orElseThrow(() -> new ResourceNotFoundException("Driver not found")));
+        }
+
+        if (dto.getCoDriverId() != null) {
+            shipment.setCoDriver(userRepository.findById(dto.getCoDriverId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Co-Driver not found")));
+        }
+        
+        shipment.setTripType(dto.getTripType());
+        if (dto.getFleetGroupId() != null) {
+            shipment.setFleetGroup(fleetGroupRepository.findById(dto.getFleetGroupId()).orElse(null));
+        } else if (dto.getFleetGroupName() != null) {
+            shipment.setFleetGroup(fleetGroupRepository.findByName(dto.getFleetGroupName())
+                .orElseGet(() -> fleetGroupRepository.save(new FleetGroup(null, dto.getFleetGroupName()))));
         }
         
         if (dto.getVehicleId() != null) {
@@ -47,6 +70,9 @@ public class ShipmentService {
             shipment.setTrailer(vehicleRepository.findById(dto.getTrailerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Trailer not found")));
         }
+
+        // Trip Type Validation
+        validateTripType(shipment);
         
         if (dto.getStatusId() != null) {
             shipment.setStatus(statusRepository.findById(dto.getStatusId()).orElse(null));
@@ -63,9 +89,23 @@ public class ShipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Shipment not found with id: " + id));
         
         if (dto.getDispatchDate() != null) shipment.setDispatchDate(dto.getDispatchDate());
+        if (dto.getLocation() != null) shipment.setLocation(dto.getLocation());
+        if (dto.getShipmentTime() != null) shipment.setShipmentTime(dto.getShipmentTime());
         
         if (dto.getDriverId() != null) {
             shipment.setDriver(userRepository.findById(dto.getDriverId()).orElse(null));
+        }
+
+        if (dto.getCoDriverId() != null) {
+            shipment.setCoDriver(userRepository.findById(dto.getCoDriverId()).orElse(null));
+        }
+
+        if (dto.getTripType() != null) shipment.setTripType(dto.getTripType());
+        if (dto.getFleetGroupId() != null) {
+            shipment.setFleetGroup(fleetGroupRepository.findById(dto.getFleetGroupId()).orElse(null));
+        } else if (dto.getFleetGroupName() != null) {
+            shipment.setFleetGroup(fleetGroupRepository.findByName(dto.getFleetGroupName())
+                .orElseGet(() -> fleetGroupRepository.save(new FleetGroup(null, dto.getFleetGroupName()))));
         }
         
         if (dto.getVehicleId() != null) {
@@ -75,6 +115,9 @@ public class ShipmentService {
         if (dto.getTrailerId() != null) {
             shipment.setTrailer(vehicleRepository.findById(dto.getTrailerId()).orElse(null));
         }
+
+        // Trip Type Validation
+        validateTripType(shipment);
         
         if (dto.getStatusId() != null) {
             shipment.setStatus(statusRepository.findById(dto.getStatusId()).orElse(null));
@@ -87,10 +130,26 @@ public class ShipmentService {
         shipmentRepository.deleteById(id);
     }
 
+    private void validateTripType(Shipment shipment) {
+        if ("SINGLE".equalsIgnoreCase(shipment.getTripType())) {
+            if (shipment.getCoDriver() != null) {
+                throw new IllegalStateException("SINGLE trip type cannot have a co-driver.");
+            }
+        } else if ("DUO".equalsIgnoreCase(shipment.getTripType())) {
+            if (shipment.getCoDriver() == null) {
+                throw new IllegalStateException("DUO trip type requires a co-driver.");
+            }
+        } else {
+            throw new IllegalStateException("Invalid Trip Type: " + shipment.getTripType());
+        }
+    }
+
     private ShipmentDTO toDTO(Shipment shipment) {
         ShipmentDTO dto = new ShipmentDTO();
         dto.setShipmentId(shipment.getShipmentId());
         dto.setDispatchDate(shipment.getDispatchDate());
+        dto.setLocation(shipment.getLocation());
+        dto.setShipmentTime(shipment.getShipmentTime());
         dto.setCreatedAt(shipment.getCreatedAt());
         dto.setUpdatedAt(shipment.getUpdatedAt());
         
@@ -98,7 +157,18 @@ public class ShipmentService {
             dto.setDriverId(shipment.getDriver().getUserId());
             dto.setDriverName(shipment.getDriver().getFullName());
         }
-        
+
+        if (shipment.getCoDriver() != null) {
+            dto.setCoDriverId(shipment.getCoDriver().getUserId());
+            dto.setCoDriverName(shipment.getCoDriver().getFullName());
+        }
+
+        dto.setTripType(shipment.getTripType());
+        if (shipment.getFleetGroup() != null) {
+            dto.setFleetGroupId(shipment.getFleetGroup().getId());
+            dto.setFleetGroupName(shipment.getFleetGroup().getName());
+        }
+
         if (shipment.getVehicle() != null) {
             dto.setVehicleId(shipment.getVehicle().getVehicleId());
         }

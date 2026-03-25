@@ -1,0 +1,417 @@
+{
+  "info": {
+    "_postman_id": "7f6b44dd-29c0-4c4e-9d6b-6d7cfb4f1234",
+    "name": "FleetCheck Inspection Timing Flow",
+    "description": "Postman collection for the truck-based inspection timing workflow, including item-by-item timing, critical defect resolution, supervisor exports, and analytics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inspection_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "vehicle_id",
+      "value": "TT3626",
+      "type": "string"
+    },
+    {
+      "key": "driver_id",
+      "value": "0000827008",
+      "type": "string"
+    },
+    {
+      "key": "co_driver_id",
+      "value": "0000827009",
+      "type": "string"
+    },
+    {
+      "key": "critical_item_code",
+      "value": "GAUGES",
+      "type": "string"
+    },
+    {
+      "key": "normal_item_code",
+      "value": "HOOTER",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Authentication",
+      "item": [
+        {
+          "name": "Login As Supervisor/Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"admin\",\n  \"pin\": \"1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Reference Data",
+      "item": [
+        {
+          "name": "Get Vehicles",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/vehicles"
+          }
+        },
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/users"
+          }
+        },
+        {
+          "name": "Get Checklist Templates",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/checklist/templates"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Start Inspection",
+      "item": [
+        {
+          "name": "Start Inspection - Single Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('inspection_id', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"driverId\": \"{{driver_id}}\",\n  \"tripType\": \"SINGLE\",\n  \"gpsLocation\": \"-26.123,28.456\",\n  \"startOdometer\": 123456,\n  \"notes\": \"Truck-based inspection start\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/start"
+          }
+        },
+        {
+          "name": "Start Inspection - Duo Drivers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.id) {",
+                  "    pm.collectionVariables.set('inspection_id', jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicleId\": \"{{vehicle_id}}\",\n  \"driverId\": \"{{driver_id}}\",\n  \"coDriverId\": \"{{co_driver_id}}\",\n  \"tripType\": \"DUO\",\n  \"gpsLocation\": \"-26.123,28.456\",\n  \"startOdometer\": 123456,\n  \"notes\": \"Truck-based duo inspection start\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/start"
+          }
+        },
+        {
+          "name": "Get Inspection Checklist",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Item By Item Flow",
+      "item": [
+        {
+          "name": "Complete Full 24-Item Checklist (All PASS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  { \"itemCode\": \"GAUGES\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"HOOTER\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"REVERSE_BUZZER\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"SEAT_BELTS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"IN_CAB_5S\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLUIDS_FUEL\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLUIDS_LEAKS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"LIGHTS_LENSES\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"WINDSCREEN_WIPERS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"MIRRORS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"TYRES_RIMS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"TREAD_DEPTH\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"SAFETY_EQUIPMENT\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"OPERATIONAL_TOOLS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"LEGAL_COMPLIANCE\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"IDENTIFICATION\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"CHEVRON_BUMPER\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"ROOF_TARPS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"TARP_HARDWARE\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FIVE_S_COMPLIANCE\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLT_HITCHING\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLT_FLUIDS\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLT_LEGAL\", \"response\": \"YES\", \"remarks\": \"Checked\" },\n  { \"itemCode\": \"FLT_MECHANICAL\", \"response\": \"YES\", \"remarks\": \"Checked\" }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist",
+            "description": "Quick full-inspection test using the compatibility bulk endpoint. Run this after starting an inspection if you want to test all 24 checklist items without calling each item start/complete request manually."
+          }
+        },
+        {
+          "name": "Start Normal Item",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/{{normal_item_code}}/start"
+          }
+        },
+        {
+          "name": "Complete Normal Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"response\": \"YES\",\n  \"remarks\": \"Completed normally\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/{{normal_item_code}}/complete"
+          }
+        },
+        {
+          "name": "Start Critical Item",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/{{critical_item_code}}/start"
+          }
+        },
+        {
+          "name": "Complete Critical Item With NO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"response\": \"NO\",\n  \"remarks\": \"Critical issue found\",\n  \"beforePhotoUrl\": \"https://example.com/before-fault.jpg\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/{{critical_item_code}}/complete"
+          }
+        },
+        {
+          "name": "Get Inspection Defects",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/defects"
+          }
+        },
+        {
+          "name": "Resolve Critical Defect",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolutionPhotoUrl\": \"https://example.com/after-fix.jpg\",\n  \"resolutionRemarks\": \"Issue fixed by workshop\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/{{critical_item_code}}/resolve"
+          }
+        },
+        {
+          "name": "Get Checklist After Resolution",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Finish Inspection",
+      "item": [
+        {
+          "name": "End Inspection",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/inspections/{{inspection_id}}/end?driverSig=Driver%20Sign&supervisorSig=Supervisor%20Sign&endOdometer=123500&notes=Inspection%20completed",
+              "query": [
+                {
+                  "key": "driverSig",
+                  "value": "Driver Sign"
+                },
+                {
+                  "key": "supervisorSig",
+                  "value": "Supervisor Sign"
+                },
+                {
+                  "key": "endOdometer",
+                  "value": "123500"
+                },
+                {
+                  "key": "notes",
+                  "value": "Inspection completed"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify Inspection",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/verify"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Supervisor Views And Exports",
+      "item": [
+        {
+          "name": "Get Open Defects",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/defects/open"
+          }
+        },
+        {
+          "name": "Get Checklist Analytics",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/checklist/analytics"
+          }
+        },
+        {
+          "name": "Export Inspection Report XLSX",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/report?format=xlsx"
+          }
+        },
+        {
+          "name": "Export Inspection Report PDF",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/{{inspection_id}}/report?format=pdf"
+          }
+        },
+        {
+          "name": "Export Checklist Analytics XLSX",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/inspections/checklist/report?format=xlsx"
+          }
+        }
+      ]
+    }
+  ]
+}

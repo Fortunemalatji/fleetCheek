@@ -67,6 +67,10 @@ public class SecurityConfig {
                 
                 // Inspections - Lookups readable by all authenticated
                 .requestMatchers(HttpMethod.GET, "/api/inspections/checklist/templates").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/inspections/checklist/analytics", "/api/inspections/checklist/report", "/api/inspections/*/report")
+                .hasAnyRole("SUPERVISOR","ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/inspections/*/defects", "/api/inspections/defects/open")
+                .hasAnyRole("SUPERVISOR","ADMIN")
                 
                 // Lookups readable by all authenticated
                 .requestMatchers(HttpMethod.GET, "/api/lookups/**").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
@@ -75,13 +79,17 @@ public class SecurityConfig {
                 // Vehicles & Shipments readable by all authenticated
                 .requestMatchers(HttpMethod.GET, "/api/vehicles/**", "/api/shipments/**").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 
-                // Inspection end + override requires SUPERVISOR, SECURITY, or ADMIN
-                .requestMatchers(HttpMethod.POST, "/api/inspections/*/end").hasAnyRole("SUPERVISOR","SECURITY","ADMIN")
+                // Inspection end + override requires DRIVER, SUPERVISOR, SECURITY, or ADMIN
+                .requestMatchers(HttpMethod.POST, "/api/inspections/*/end").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 
                 // Write operations (POST/PUT) for entities require ADMIN (except starting inspection/submitting checklist)
                 .requestMatchers(HttpMethod.POST, "/api/inspections/start").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/inspections/*/checklist").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/users/**", "/api/vehicles/**", "/api/shipments/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/inspections/*/checklist/*/start", "/api/inspections/*/checklist/*/complete")
+                .hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/inspections/*/checklist/*/resolve")
+                .hasAnyRole("SUPERVISOR","ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/users/**", "/api/vehicles/**", "/api/shipments/**").hasAnyRole("SUPERVISOR","ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/**").hasRole("ADMIN")
                 
                 // Delete requires ADMIN

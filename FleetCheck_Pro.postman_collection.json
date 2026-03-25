@@ -45,7 +45,7 @@
 			"name": "Users",
 			"item": [
 				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/users" } },
-				{ "name": "Create User (with PIN)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": \"0000827008\",\n  \"username\": \"alfredo\",\n  \"fullName\": \"Alfredo Reid\",\n  \"fleetGroup\": \"PH4\",\n  \"role\": { \"id\": 2 },\n  \"pin\": \"1234\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/users", "description": "You can now include the 'pin' directly during creation." } }
+				{ "name": "Create User (with PIN)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": \"0000827008\",\n  \"username\": \"alfredo\",\n  \"fullName\": \"Alfredo Reid\",\n  \"fleetGroup\": \"Northern Cape\",\n  \"role\": { \"id\": 2 },\n  \"pin\": \"1234\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/users", "description": "Include 'fleetGroup' (mandatory) and nested 'role' object." } }
 			]
 		},
 		{
@@ -59,14 +59,14 @@
 			"name": "Vehicles",
 			"item": [
 				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/vehicles" } },
-				{ "name": "Create Vehicle (with Photos)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"vehicleId\": \"ST2832\",\n  \"categoryId\": 2,\n  \"isActive\": true,\n  \"frontPhotoUrl\": \"https://example.com/front.jpg\",\n  \"backPhotoUrl\": \"https://example.com/back.jpg\",\n  \"leftPhotoUrl\": \"https://example.com/left.jpg\",\n  \"rightPhotoUrl\": \"https://example.com/right.jpg\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/vehicles" } }
+				{ "name": "Create Vehicle (with Photos)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"vehicleId\": \"ST2832\",\n  \"categoryId\": 2,\n  \"isActive\": true,\n  \"fleetGroup\": \"PH4\",\n  \"frontPhotoUrl\": \"https://example.com/front.jpg\",\n  \"backPhotoUrl\": \"https://example.com/back.jpg\",\n  \"leftPhotoUrl\": \"https://example.com/left.jpg\",\n  \"rightPhotoUrl\": \"https://example.com/right.jpg\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/vehicles" } }
 			]
 		},
 		{
 			"name": "Shipments",
 			"item": [
 				{ "name": "Get All", "request": { "method": "GET", "url": "{{base_url}}/api/shipments" } },
-				{ "name": "Create Shipment (with Trailer)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"shipmentId\": \"159494\",\n  \"dispatchDate\": \"2026-03-21\",\n  \"driver\": { \"userId\": \"0000827008\" },\n  \"status\": { \"id\": 1 },\n  \"vehicle\": { \"vehicleId\": \"TT3626\" },\n  \"trailerId\": \"ST2832\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/shipments" } }
+				{ "name": "Create Shipment (Duo)", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"shipmentId\": \"159495\",\n  \"dispatchDate\": \"2026-03-21\",\n  \"driver\": { \"userId\": \"0000827008\" },\n  \"coDriverId\": \"0000827009\",\n  \"tripType\": \"DUO\",\n  \"fleetGroup\": \"PH4\",\n  \"status\": { \"id\": 1 },\n  \"vehicle\": { \"vehicleId\": \"TT3626\" }\n}", "options": { "raw": { "language": "json" } } }, "url": "{{base_url}}/api/shipments" } }
 			]
 		},
 		{
@@ -82,16 +82,25 @@
 					}
 				},
 				{
-					"name": "2. Submit Checklist (with Photos)",
+					"name": "2. Submit Checklist (One Shot)",
 					"request": {
 						"method": "POST",
 						"header": [{ "key": "Content-Type", "value": "application/json" }],
-						"body": { "mode": "raw", "raw": "[\n  { \"itemCode\": \"GAUGES\",            \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" },\n  { \"itemCode\": \"HOOTER\",            \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" },\n  { \"itemCode\": \"TYRES_RIMS\",        \"response\": \"NO\",  \"remarks\": \"Left front worn\", \"photoUrl\": \"https://example.com/worn_tyre.jpg\" },\n  { \"itemCode\": \"LIGHTS_LENSES\",     \"response\": \"YES\", \"remarks\": \"\", \"photoUrl\": \"\" }\n]", "options": { "raw": { "language": "json" } } },
+						"body": { "mode": "raw", "raw": "[\n  { \"itemCode\": \"GAUGES\",            \"response\": \"YES\", \"remarks\": \"\", \"startTime\": \"2026-03-22T10:00:00\", \"endTime\": \"2026-03-22T10:00:15\" },\n  { \"itemCode\": \"TYRES_RIMS\",        \"response\": \"NO\",  \"remarks\": \"Left front worn\", \"photoUrl\": \"https://example.com/worn_tyre.jpg\", \"startTime\": \"2026-03-22T10:00:16\", \"endTime\": \"2026-03-22T10:00:45\" }\n]", "options": { "raw": { "language": "json" } } },
 						"url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist"
 					}
 				},
 				{
-					"name": "3. End Inspection",
+					"name": "3. Follow-up: Mark Fixed",
+					"request": {
+						"method": "PATCH",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"isFixed\": true,\n  \"remarks\": \"Tyre replaced by workshop\"\n}", "options": { "raw": { "language": "json" } } },
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/checklist/TYRES_RIMS"
+					}
+				},
+				{
+					"name": "4. End Inspection",
 					"request": {
 						"method": "POST",
 						"url": {
@@ -105,11 +114,10 @@
 					}
 				},
 				{
-					"name": "4. Verify Gate Pass",
+					"name": "5. Verify Gate Pass",
 					"request": {
 						"method": "GET",
-						"url": "{{base_url}}/api/inspections/{{inspection_id}}/verify",
-						"description": "Used by Security to verify the inspection status via QR code scan."
+						"url": "{{base_url}}/api/inspections/{{inspection_id}}/verify"
 					}
 				}
 			]

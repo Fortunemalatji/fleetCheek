@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ShipmentStatusRepository extends JpaRepository<ShipmentStatus, Integer> {
+    java.util.Optional<ShipmentStatus> findByName(String name);
 }

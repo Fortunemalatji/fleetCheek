@@ -24,6 +24,11 @@ public class ShipmentController {
         return shipmentService.getById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/user/{userId}")
+    public List<ShipmentDTO> getByUserId(@PathVariable String userId) {
+        return shipmentService.getByUserId(userId);
+    }
+
     @PostMapping
     public ShipmentDTO create(@RequestBody ShipmentDTO shipment) {
         return shipmentService.create(shipment);

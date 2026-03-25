@@ -3,6 +3,7 @@ package Fleet.check.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+import java.time.LocalDateTime;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -39,4 +40,18 @@ public class ChecklistItem extends BaseEntity {
 
     @Column(length = 1000)
     private String photoUrl;
+
+    @Column(length = 1000)
+    private String beforePhotoUrl;
+
+    @Column(length = 1000)
+    private String afterPhotoUrl;
+
+    private boolean isFixed = false;
+
+    @Column(length = 30, nullable = false)
+    private String status = "PENDING";
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 }
