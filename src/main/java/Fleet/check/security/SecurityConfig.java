@@ -88,7 +88,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/inspections/*/checklist/*/start", "/api/inspections/*/checklist/*/complete")
                 .hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/inspections/*/checklist/*/resolve")
-                .hasAnyRole("SUPERVISOR","ADMIN")
+                .hasAnyRole("DRIVER","SUPERVISOR","ADMIN")
                 .requestMatchers(HttpMethod.POST, "/api/users/**", "/api/vehicles/**", "/api/shipments/**").hasAnyRole("SUPERVISOR","ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/**").hasRole("ADMIN")
                 
