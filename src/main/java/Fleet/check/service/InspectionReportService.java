@@ -24,6 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +35,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class InspectionReportService {
+    private static final DateTimeFormatter STANDARD_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
+
     private final InspectionRepository inspectionRepository;
     private final ChecklistItemRepository checklistItemRepository;
     private final InspectionService inspectionService;
@@ -98,9 +103,9 @@ public class InspectionReportService {
             document.add(new Paragraph("Shipment ID: " + safe(inspection.getShipmentId())));
             document.add(new Paragraph("Driver: " + safe(inspection.getDriverName(), inspection.getDriverId())));
             document.add(new Paragraph("Status: " + safe(inspection.getOverallStatus())));
-            document.add(new Paragraph("Start Time: " + safe(inspection.getStartTime())));
-            document.add(new Paragraph("End Time: " + safe(inspection.getEndTime())));
-            document.add(new Paragraph("Total Inspection Time (ms): " + safe(inspection.getTotalDurationMs())));
+            document.add(new Paragraph("Start Time: " + formatDateTime(inspection.getStartTime())));
+            document.add(new Paragraph("End Time: " + formatDateTime(inspection.getEndTime())));
+            document.add(new Paragraph("Total Inspection Time: " + formatDuration(inspection.getTotalDurationMs())));
             document.add(new Paragraph(" "));
 
             PdfPTable table = new PdfPTable(7);
@@ -109,7 +114,7 @@ public class InspectionReportService {
             addHeader(table, "Response");
             addHeader(table, "Fixed");
             addHeader(table, "Status");
-            addHeader(table, "Duration (ms)");
+            addHeader(table, "Duration");
             addHeader(table, "Remarks");
 
             for (var item : inspection.getChecklistItems()) {
@@ -118,7 +123,7 @@ public class InspectionReportService {
                 table.addCell(safe(item.getResponse()));
                 table.addCell(Boolean.toString(item.isFixed()));
                 table.addCell(safe(item.getStatus()));
-                table.addCell(String.valueOf(item.getDurationMs() != null ? item.getDurationMs() : 0));
+                table.addCell(formatDuration(item.getDurationMs()));
                 table.addCell(safe(item.getRemarks()));
             }
 
@@ -137,9 +142,9 @@ public class InspectionReportService {
             writeSummaryRow(summary, 1, "Shipment ID", inspection.getShipmentId());
             writeSummaryRow(summary, 2, "Driver", safe(inspection.getDriverName(), inspection.getDriverId()));
             writeSummaryRow(summary, 3, "Status", inspection.getOverallStatus());
-            writeSummaryRow(summary, 4, "Start Time", safe(inspection.getStartTime()));
-            writeSummaryRow(summary, 5, "End Time", safe(inspection.getEndTime()));
-            writeSummaryRow(summary, 6, "Total Inspection Time (ms)", safe(inspection.getTotalDurationMs()));
+            writeSummaryRow(summary, 4, "Start Time", formatDateTime(inspection.getStartTime()));
+            writeSummaryRow(summary, 5, "End Time", formatDateTime(inspection.getEndTime()));
+            writeSummaryRow(summary, 6, "Total Inspection Time", formatDuration(inspection.getTotalDurationMs()));
 
             Sheet checklist = workbook.createSheet("Checklist");
             Row header = checklist.createRow(0);
@@ -149,7 +154,7 @@ public class InspectionReportService {
             header.createCell(3).setCellValue("Response");
             header.createCell(4).setCellValue("Fixed");
             header.createCell(5).setCellValue("Status");
-            header.createCell(6).setCellValue("Duration (ms)");
+            header.createCell(6).setCellValue("Duration");
             header.createCell(7).setCellValue("Remarks");
 
             int rowIndex = 1;
@@ -161,7 +166,7 @@ public class InspectionReportService {
                 row.createCell(3).setCellValue(safe(item.getResponse()));
                 row.createCell(4).setCellValue(item.isFixed());
                 row.createCell(5).setCellValue(safe(item.getStatus()));
-                row.createCell(6).setCellValue(item.getDurationMs() != null ? item.getDurationMs() : 0);
+                row.createCell(6).setCellValue(formatDuration(item.getDurationMs()));
                 row.createCell(7).setCellValue(safe(item.getRemarks()));
             }
 
@@ -178,11 +183,11 @@ public class InspectionReportService {
         csv.append("Shipment ID,").append(quote(inspection.getShipmentId())).append('\n');
         csv.append("Driver,").append(quote(safe(inspection.getDriverName(), inspection.getDriverId()))).append('\n');
         csv.append("Status,").append(quote(inspection.getOverallStatus())).append('\n');
-        csv.append("Start Time,").append(quote(inspection.getStartTime())).append('\n');
-        csv.append("End Time,").append(quote(inspection.getEndTime())).append('\n');
-        csv.append("Total Inspection Time (ms),").append(quote(inspection.getTotalDurationMs())).append('\n');
+        csv.append("Start Time,").append(quote(formatDateTime(inspection.getStartTime()))).append('\n');
+        csv.append("End Time,").append(quote(formatDateTime(inspection.getEndTime()))).append('\n');
+        csv.append("Total Inspection Time,").append(quote(formatDuration(inspection.getTotalDurationMs()))).append('\n');
         csv.append('\n');
-        csv.append("Item Code,Item Name,Zone,Response,Fixed,Status,Duration (ms),Remarks\n");
+        csv.append("Item Code,Item Name,Zone,Response,Fixed,Status,Duration,Remarks\n");
 
         for (var item : inspection.getChecklistItems()) {
             csv.append(quote(item.getItemCode())).append(',')
@@ -191,7 +196,7 @@ public class InspectionReportService {
                     .append(quote(item.getResponse())).append(',')
                     .append(item.isFixed()).append(',')
                     .append(quote(item.getStatus())).append(',')
-                    .append(item.getDurationMs() != null ? item.getDurationMs() : 0).append(',')
+                    .append(quote(formatDuration(item.getDurationMs()))).append(',')
                     .append(quote(item.getRemarks())).append('\n');
         }
 
@@ -301,6 +306,28 @@ public class InspectionReportService {
 
     private String safe(String firstChoice, String fallback) {
         return firstChoice != null && !firstChoice.isBlank() ? firstChoice : safe(fallback);
+    }
+
+    private String formatDateTime(LocalDateTime value) {
+        return value == null ? "" : value.format(STANDARD_TIME_FORMAT);
+    }
+
+    private String formatDuration(Long durationMs) {
+        if (durationMs == null || durationMs <= 0) {
+            return "0 min";
+        }
+
+        long totalMinutes = Duration.ofMillis(durationMs).toMinutes();
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+
+        if (hours == 0) {
+            return minutes + " min";
+        }
+        if (minutes == 0) {
+            return hours + " hr";
+        }
+        return hours + " hr " + minutes + " min";
     }
 
     private String quote(Object value) {
