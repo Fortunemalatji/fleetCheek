@@ -68,7 +68,7 @@ public class SecurityConfig {
                 // Inspections - Lookups readable by all authenticated
                 .requestMatchers(HttpMethod.GET, "/api/inspections/checklist/templates").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/inspections/checklist/analytics", "/api/inspections/checklist/report", "/api/inspections/*/report")
-                .hasAnyRole("SUPERVISOR","ADMIN")
+                .hasAnyRole("DRIVER","SUPERVISOR","ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/inspections/*/defects", "/api/inspections/defects/open")
                 .hasAnyRole("SUPERVISOR","ADMIN")
                 
