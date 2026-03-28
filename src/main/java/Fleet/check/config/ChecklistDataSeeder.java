@@ -93,7 +93,7 @@ public class ChecklistDataSeeder implements CommandLineRunner {
             log.info("Checklist templates already seeded, skipping.");
             return;
         }
-        log.info("Seeding 23 checklist templates...");
+        log.info("Seeding 19 checklist templates...");
 
         String z1 = "ZONE_1_CAB",   z1n = "Zone 1: CAB";
         String z2 = "ZONE_2_FRONT", z2n = "Zone 2: FRONT";
@@ -123,12 +123,7 @@ public class ChecklistDataSeeder implements CommandLineRunner {
         seed(z4, z4n, "ROOF_TARPS",        "Roof & Tarps",       "Inspect for cuts, damages, or leaks in the trailer covering.",             false, false);
         seed(z4, z4n, "TARP_HARDWARE",     "Tarp Hardware",      "Shock cords in place; buckles operational; tarps close securely.",         false, true);
         seed(z4, z4n, "FIVE_S_COMPLIANCE", "5S Compliance",      "Entire truck and trailer unit is clean and professional.",                 false, false);
-        seed(z4, z4n, "FLT_HITCHING",      "FLT Hitching",       "Correctly hitched with locking pin in place. (If applicable)",            true,  false);
-        seed(z4, z4n, "FLT_FLUIDS",        "FLT Fluids",         "No visible leaks; hydraulic level above minimum. (If applicable)",        true,  false);
-        seed(z4, z4n, "FLT_LEGAL",         "FLT Legal",          "Valid license document and load test certificate. (If applicable)",        true,  false);
-        seed(z4, z4n, "FLT_MECHANICAL",    "FLT Mechanical",     "Mast raises and lowers smoothly; no visible damage. (If applicable)",     true,  false);
-
-        log.info("Checklist seeding complete: 23 items across 4 zones.");
+        log.info("Checklist seeding complete: 19 items across 4 zones.");
     }
 
     private void seed(String zoneCode, String zoneName, String code, String name, String desc,

@@ -148,6 +148,12 @@ public class InspectionController {
         return inspectionService.endInspection(id, supervisorOverride, driverSig, supervisorSig, securitySig, endOdometer, notes);
     }
 
+    @PostMapping("/{id}/cancel")
+    public InspectionDTO cancel(@PathVariable UUID id,
+                                @RequestParam(required = false) String reason) {
+        return inspectionService.cancelInspection(id, reason);
+    }
+
     @GetMapping("/{id}/verify")
     public InspectionDTO verify(@PathVariable UUID id) {
         return inspectionRepository.findById(id)

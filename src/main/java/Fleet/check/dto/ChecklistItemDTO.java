@@ -20,7 +20,7 @@ public class ChecklistItemDTO {
     private String photoUrl;
     private String beforePhotoUrl;
     private String afterPhotoUrl;
-    private boolean isFixed;
+    private boolean isFixed = true;
     private String defectStatus;
     private LocalDateTime startTime;
     private LocalDateTime endTime;

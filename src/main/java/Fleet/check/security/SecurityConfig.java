@@ -81,6 +81,7 @@ public class SecurityConfig {
                 
                 // Inspection end + override requires DRIVER, SUPERVISOR, SECURITY, or ADMIN
                 .requestMatchers(HttpMethod.POST, "/api/inspections/*/end").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/inspections/*/cancel").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")
                 
                 // Write operations (POST/PUT) for entities require ADMIN (except starting inspection/submitting checklist)
                 .requestMatchers(HttpMethod.POST, "/api/inspections/start").hasAnyRole("DRIVER","SUPERVISOR","SECURITY","ADMIN")

@@ -314,7 +314,12 @@ public class InspectionReportService {
 
     private String formatDuration(Long durationMs) {
         if (durationMs == null || durationMs <= 0) {
-            return "0 min";
+            return "0 sec";
+        }
+
+        long totalSeconds = Duration.ofMillis(durationMs).getSeconds();
+        if (totalSeconds < 60) {
+            return totalSeconds + " sec";
         }
 
         long totalMinutes = Duration.ofMillis(durationMs).toMinutes();

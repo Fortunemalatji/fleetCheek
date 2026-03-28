@@ -116,12 +116,14 @@ public class InspectionService {
     }
 
     public List<ChecklistItemDTO> submitChecklist(UUID inspectionId, List<ChecklistItemDTO> requests) {
+        ensureInspectionIsActive(getInspection(inspectionId));
         return requests.stream()
                 .map(req -> completeChecklistItem(inspectionId, req.getItemCode(), req))
                 .collect(Collectors.toList());
     }
 
     public ChecklistItemDTO updateChecklistItem(UUID inspectionId, String itemCode, ChecklistItemDTO req) {
+        ensureInspectionIsActive(getInspection(inspectionId));
         ChecklistItem item = checklistItemRepository.findByInspection_InspectionIdAndTemplate_ItemCode(inspectionId, itemCode)
                 .orElseThrow(() -> new ResourceNotFoundException("Checklist item " + itemCode + " not found for inspection " + inspectionId));
         
@@ -132,8 +134,6 @@ public class InspectionService {
         if (req.getAfterPhotoUrl() != null) item.setAfterPhotoUrl(req.getAfterPhotoUrl());
         item.setFixed(req.isFixed()); // boolean
         if (req.getStatus() != null) item.setStatus(req.getStatus());
-        if (req.getStartTime() != null) item.setStartTime(req.getStartTime());
-        if (req.getEndTime() != null) item.setEndTime(req.getEndTime());
         
         return toChecklistItemDTO(checklistItemRepository.save(item));
     }
@@ -171,10 +171,12 @@ public class InspectionService {
     }
 
     public ChecklistItemDTO completeChecklistItem(UUID inspectionId, String itemCode, ChecklistItemDTO req) {
+        ensureInspectionIsActive(getInspection(inspectionId));
         ChecklistItem item = getChecklistItem(inspectionId, itemCode);
+        LocalDateTime now = LocalDateTime.now();
 
         if (item.getStartTime() == null) {
-            item.setStartTime(req.getStartTime() != null ? req.getStartTime() : LocalDateTime.now());
+            item.setStartTime(now);
         }
 
         if (req.getResponse() == null || req.getResponse().isBlank()) {
@@ -186,7 +188,7 @@ public class InspectionService {
         item.setPhotoUrl(req.getPhotoUrl());
         item.setBeforePhotoUrl(req.getBeforePhotoUrl());
         item.setAfterPhotoUrl(req.getAfterPhotoUrl());
-        item.setEndTime(req.getEndTime() != null ? req.getEndTime() : LocalDateTime.now());
+        item.setEndTime(now);
 
         if (item.getTemplate().isCritical() && "NO".equalsIgnoreCase(req.getResponse())) {
             String evidencePhoto = firstNonBlank(req.getBeforePhotoUrl(), req.getPhotoUrl());
@@ -208,6 +210,7 @@ public class InspectionService {
     }
 
     public InspectionDefectDTO resolveDefect(UUID inspectionId, String itemCode, DefectResolutionDTO req) {
+        ensureInspectionIsActive(getInspection(inspectionId));
         if (req.getResolutionPhotoUrl() == null || req.getResolutionPhotoUrl().isBlank()) {
             throw new IllegalStateException("Resolution photo is required to resolve a defect.");
         }
@@ -258,6 +261,10 @@ public class InspectionService {
                                      Integer endOdometer, String notes) {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inspection not found: " + id));
+
+        if (inspection.getEndTime() != null) {
+            throw new IllegalStateException("Inspection is already closed.");
+        }
 
         // Completeness check
         long submittedCount = checklistItemRepository.countByInspection_InspectionId(id);
@@ -317,6 +324,43 @@ public class InspectionService {
             vehicleRepository.save(v);
         }
         
+        return toInspectionDTO(inspectionRepository.save(inspection));
+    }
+
+    public InspectionDTO cancelInspection(UUID id, String reason) {
+        Inspection inspection = inspectionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Inspection not found: " + id));
+
+        if (inspection.getEndTime() != null) {
+            throw new IllegalStateException("Inspection is already closed.");
+        }
+
+        String currentUserId = currentUserId();
+        boolean isDriver = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_DRIVER"));
+
+        if (isDriver && !currentUserId.equals(inspection.getStartedByUserId())) {
+            throw new IllegalStateException("Drivers can only cancel inspections they started.");
+        }
+
+        inspection.setEndTime(LocalDateTime.now());
+        inspection.setOverallStatus("CANCELLED");
+        inspection.setSignedByUserId(currentUserId);
+
+        if (reason != null && !reason.isBlank()) {
+            String trimmedReason = reason.trim();
+            String existingNotes = inspection.getNotes();
+            inspection.setNotes(existingNotes == null || existingNotes.isBlank()
+                    ? "Cancelled: " + trimmedReason
+                    : existingNotes + "\nCancelled: " + trimmedReason);
+        }
+
+        Shipment shipment = inspection.getShipment();
+        if (shipment != null) {
+            statusRepository.findByName("SCHEDULED").ifPresent(shipment::setStatus);
+            shipmentRepository.save(shipment);
+        }
+
         return toInspectionDTO(inspectionRepository.save(inspection));
     }
 
@@ -459,6 +503,12 @@ public class InspectionService {
     private Inspection getInspection(UUID inspectionId) {
         return inspectionRepository.findById(inspectionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Inspection not found: " + inspectionId));
+    }
+
+    private void ensureInspectionIsActive(Inspection inspection) {
+        if (inspection.getEndTime() != null) {
+            throw new IllegalStateException("Cannot modify a closed inspection.");
+        }
     }
 
     private ChecklistItem getChecklistItem(UUID inspectionId, String itemCode) {

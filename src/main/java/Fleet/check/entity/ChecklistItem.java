@@ -47,7 +47,7 @@ public class ChecklistItem extends BaseEntity {
     @Column(length = 1000)
     private String afterPhotoUrl;
 
-    private boolean isFixed = false;
+    private boolean isFixed = true;
 
     @Column(length = 30, nullable = false)
     private String status = "PENDING";
